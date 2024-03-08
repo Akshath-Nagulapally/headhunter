@@ -138,7 +138,7 @@ async function confirmPurchase(symbol: string, price: number, amount: number) {
 async function submitUserMessage(content: string) {
   "use server";
 
-  function extractHashtagText(text) {
+  function extractHashtagText(text: string) {
     // Regular expression to match text surrounded by hashtags
     const regex = /#([^#]+)#/g;
     const matches = [];
@@ -153,9 +153,9 @@ async function submitUserMessage(content: string) {
     return matches.length > 0 ? matches[0] : undefined;
   }
 
-  async function prospect(llmMessage) {
+  async function prospect(llmMessage: string) {
     const baseUrl = "https://3888-139-167-50-142.ngrok-free.app/prospect?query=";
-    const url = `${baseUrl}${encodeURIComponent(extractHashtagText(llmMessage))}`;
+    const url = `${baseUrl}${encodeURIComponent(extractHashtagText(llmMessage) || "")}`;
   
     try {
       const response = await fetch(url);
@@ -167,6 +167,13 @@ async function submitUserMessage(content: string) {
       return array_of_prospects;
 
     } catch (error) {
+      return [
+        {
+          link:"Try to ask something more specific",
+          name:"no available data",
+          id:"not found",
+        }
+      ]
       console.error("Error fetching data: ", error);
     }
   }

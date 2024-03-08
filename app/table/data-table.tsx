@@ -10,6 +10,7 @@ import {
   flexRender,
   getCoreRowModel,
   getPaginationRowModel,
+  SortingState,
   useReactTable,
   getSortedRowModel,
   getFilteredRowModel,
@@ -46,6 +47,7 @@ export function DataTable<TData, TValue>({
   data,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([])
+
 
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []

@@ -1,7 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { ExternalLink } from '@/components/external-link';
 import { IconArrowRight } from '@/components/ui/icons';
-import { Huntedheads } from '@/components/Huntedheads'
 import DemoPage from '../app/table/RenderedTable';
 import { Payment, columns } from "../app/table/columns";
 import { DataTable } from "../app/table/data-table";
@@ -89,7 +88,7 @@ async function getData(): Promise<Payment[]> {
 export function EmptyScreen({submitMessage,}: {submitMessage: (message: string) => void;}) {
 
   // Use useState to manage your data state
-  const [data, setData] = useState([]);
+  const [data, setData] = useState<Payment[]>([]);
 
   // Use useEffect to handle the async operation
   useEffect(() => {
