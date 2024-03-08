@@ -1,5 +1,4 @@
 import "server-only";
-
 import { createAI, createStreamableUI, getMutableAIState } from "ai/rsc";
 import OpenAI from "openai";
 
@@ -28,13 +27,49 @@ import { EventsSkeleton } from "@/components/llm-stocks/events-skeleton";
 import { StocksSkeleton } from "@/components/llm-stocks/stocks-skeleton";
 import { messageRateLimit } from "@/lib/rate-limit";
 import { headers } from "next/headers";
+import { DataTable } from "./table/data-table";
+import DemoPage from './table/RenderedTable';
+import { Payment, columns } from "./table/columns";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY || "",
 });
 
+
+async function getData(): Promise<Payment[]> {
+  // Fetch data from your API here.
+  return [
+    {
+      id: "728ed52f",
+      name: "pending",
+      link: "m@example.com",
+    },
+    {
+      id: "728ed52f",
+      name: "pending",
+      link: "m@example.com",
+    },
+    {
+      id: "728ed52f",
+      name: "pending",
+      link: "m@example.com",
+    },
+    {
+      id: "728ed52f",
+      name: "pending",
+      link: "m@example.com",
+    },
+
+  ]
+}
+
+
+
+
 async function confirmPurchase(symbol: string, price: number, amount: number) {
+  
   "use server";
+    
 
   const aiState = getMutableAIState<typeof AI>();
 
@@ -103,6 +138,45 @@ async function confirmPurchase(symbol: string, price: number, amount: number) {
 async function submitUserMessage(content: string) {
   "use server";
 
+  function extractHashtagText(text) {
+    // Regular expression to match text surrounded by hashtags
+    const regex = /#([^#]+)#/g;
+    const matches = [];
+    let match;
+  
+    // Loop over all matches and push them to the matches array
+    while ((match = regex.exec(text)) !== null) {
+      matches.push(match[1]);
+    }
+  
+    // Return the first match or undefined if no matches are found
+    return matches.length > 0 ? matches[0] : undefined;
+  }
+
+  async function prospect(llmMessage) {
+    const baseUrl = "https://3888-139-167-50-142.ngrok-free.app/prospect?query=";
+    const url = `${baseUrl}${encodeURIComponent(extractHashtagText(llmMessage))}`;
+  
+    try {
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const array_of_prospects = await response.json(); // Assuming the output is text. Use .json() if the output is JSON.
+      console.log(array_of_prospects);
+      return array_of_prospects;
+
+    } catch (error) {
+      console.error("Error fetching data: ", error);
+    }
+  }
+  
+  
+
+
+
+
+
   const reply = createStreamableUI(
     <BotMessage className="items-center">{spinner}</BotMessage>,
   );
@@ -135,25 +209,42 @@ async function submitUserMessage(content: string) {
     messages: [
       {
         role: "system",
-        content: `\
-You are a stock trading conversation bot and you can help users buy stocks, step by step.
-You can let the user play pacman, as many times as they want.
-You can let the user throw confetti, as many times as they want, to celebrate.
-You and the user can discuss stock prices and the user can adjust the amount of stocks they want to buy, or place an order, in the UI.
+        content: `INSTRUCTIONS:
 
-Messages inside [] means that it's a UI element or a user event. For example:
-- "[Price of AAPL = 100]" means that an interface of the stock price of AAPL is shown to the user.
-- "[User has changed the amount of AAPL to 10]" means that the user has changed the amount of AAPL to 10 in the UI.
+I will provide you with a job description for a certain company and you will generate a google dork to find profiles that will be qualified for that job description.
+Make sure the company name is not included in any of the dorks. Make sure it is only from linkedin. Keep the dork fairly general.
+think about the following:
 
-If the user requests playing pacman, call \`play_pacman\` to play pacman.
-If the user requests throwing confetti, call \`throw_confetti\` to throw confetti.
-If the user requests purchasing a stock, call \`show_stock_purchase_ui\` to show the purchase UI.
-If the user just wants the price, call \`show_stock_price\` to show the price.
-If you want to show trending stocks, call \`list_stocks\`.
-If you want to show events, call \`get_events\`.
-If the user wants to sell stock, or complete another impossible task, respond that you are a demo and cannot do that.
+1)Location(change this by changing the location's domain ie: site:ca.linkedin.com/in/ for linkedin canada, etc) or keep it broad through the .com
+2)Job title
+3)Show similar results(search?q=~+)
+4)Keywords to include, E.g. London OR Paris AND html
+5)Keywords to exclude
+6)Education
+7)Current Employer(optional, can be left blank)
 
-Besides that, you can also chat with users and do some calculations if needed.`,
+Output 1 dork, surround it with #. Outline your reasoning after you have outputted the dork(one line max). There is absolutely no reason why you should step through the description sequentially.
+END OF INSTRUCTIONS`,
+
+// `\
+// You are a stock trading conversation bot and you can help users buy stocks, step by step.
+// You can let the user throw confetti, as many times as they want, to celebrate.
+// You and the user can discuss stock prices and the user can asdjust the amount of stocks they want to buy, or place an order, in the UI.
+
+// Messages inside [] means that it's a UI element or a user event. For example:
+// - "[Price of AAPL = 100]" means that an interface of the stock price of AAPL is shown to the user.
+// - "[User has changed the amount of AAPL to 10]" means that the user has changed the amount of AAPL to 10 in the UI.
+
+// If the user requests playing pacman, call \`play_pacman\` to play pacman.
+// If the user requests throwing confetti, call \`throw_confetti\` to throw confetti.
+// If the user requests purchasing a stock, call \`show_stock_purchase_ui\` to show the purchase UI.
+// If the user just wants the price, call \`show_stock_price\` to show the price.
+// If you want to show trending stocks, call \`list_stocks\`.
+// If you want to show events, call \`get_events\`.
+// If the user wants to sell stock, or complete another impossible task, respond that you are a demo and cannot do that.
+
+// Besides that, you can also chat with users and do some calculations if needed.
+// `,
       },
       ...aiState.get().map((info: any) => ({
         role: info.role,
@@ -238,10 +329,22 @@ Besides that, you can also chat with users and do some calculations if needed.`,
   });
 
   completion.onTextContent((content: string, isFinal: boolean) => {
+
     reply.update(<BotMessage>{content}</BotMessage>);
     if (isFinal) {
-      reply.done();
-      aiState.done([...aiState.get(), { role: "assistant", content }]);
+
+      prospect(content).then(array_of_prospects => {
+        console.log(array_of_prospects); // Handle the data here
+        reply.update(<BotMessage>{extractHashtagText(content)} <DemoPage prospects_data={array_of_prospects}/> </BotMessage>);
+        reply.done();
+        aiState.done([...aiState.get(), { role: "assistant", content }]);
+  
+      }).catch(error => {
+        console.error(error); // Handle any errors here
+      });
+      
+
+
     }
   });
 
