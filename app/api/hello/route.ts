@@ -4,7 +4,7 @@
 //edge runtime
 //store the api key in an env variable so that its secure n shit
 
-import fetch from 'node-fetch';
+import fetch, { Headers } from 'node-fetch';
 
 export const dynamic = 'force-dynamic'; // static by default, unless reading the request
  
@@ -21,22 +21,37 @@ export async function GET(request: any) {
       "q": query
     });
   
+      
     var requestOptions = {
       method: 'POST',
       headers: myHeaders,
       body: raw,
-      redirect: 'follow'
     };
   
     // Make the fetch request and await its response
     try {
+
       const response = await fetch("https://google.serper.dev/search", requestOptions);
-      const result = await response.text();
+      const result: any = await response.json();
+      console.log("this was the user query:", query);
       // Return the result as a server response
-      return new Response(result, {
-        headers: { 'Content-Type': 'application/json' }
-      });
-    } catch (error) {
+
+      if (result && result.organic) {
+        // Transform the "organic" array elements
+        const transformedOrganicResults = result.organic.map((item: any, index: any) => ({
+          title: item.title,
+          link: item.link,
+          id: 12 // Static id as per the requirement
+        }));
+  
+        return new Response(JSON.stringify(transformedOrganicResults), {
+          headers: { 'Content-Type': 'application/json' }
+        });
+      } else {
+        // If the "organic" part is not found, return a meaningful error message
+        return new Response('No organic results found', { status: 404 });
+      }
+      } catch (error) {
       // Handle errors
       console.log('error', error);
       return new Response('Error fetching data', { status: 500 });
