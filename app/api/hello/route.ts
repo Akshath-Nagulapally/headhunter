@@ -5,16 +5,19 @@
 //store the api key in an env variable so that its secure n shit
 
 import fetch, { Headers } from 'node-fetch';
+  
 
 export const dynamic = 'force-dynamic'; // static by default, unless reading the request
  
 export async function GET(request: any) {
     // Set up headers and request body as in your provided code
+
+    const serper_key = process.env.SERPER_API_KEY
     const url = new URL(request.url);
     const query = url.searchParams.get("query"); // "q" is the name of the query parameter
   
     var myHeaders = new Headers();
-    myHeaders.append("X-API-KEY", "2d360b77703f4c688f8d9c2b314040291a91043d");
+    myHeaders.append("X-API-KEY", serper_key);
     myHeaders.append("Content-Type", "application/json");
   
     var raw = JSON.stringify({
