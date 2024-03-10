@@ -153,6 +153,30 @@ async function submitUserMessage(content: string) {
     return matches.length > 0 ? matches[0] : undefined;
   }
 
+  function processHashtagsAndRemovePhrases(text: string) {
+    // Remove specified phrases
+    text = text.replace(/google dork|dork/gi, '');
+  
+    // Count the number of hashtags in the text
+    const hashtagCount = (text.match(/#/g) || []).length;
+    
+    // If there is exactly one hashtag
+    if (hashtagCount === 1) {
+      // Delete everything from the hashtag to the end
+      return text.split('#')[0];
+    }
+    
+    // If there are exactly two hashtags
+    if (hashtagCount === 2) {
+      // Use a regular expression to remove the text between the two hashtags, including the hashtags
+      return text.replace(/#.*?#/g, '');
+    }
+    
+    // Return the processed text if there are not exactly one or two hashtags
+    return text;
+  }
+    
+
   function removeDorkText(text: string) {
     // Step 1: Remove all instances of the word "dork" (case-insensitive)
     text = text.replace(/dork/gi, '');
@@ -225,11 +249,6 @@ async function submitUserMessage(content: string) {
     }
   }
   
-  
-
-
-
-
 
   const reply = createStreamableUI(
     <BotMessage className="items-center">{spinner}</BotMessage>,
@@ -379,7 +398,7 @@ async function submitUserMessage(content: string) {
 
   completion.onTextContent((content: string, isFinal: boolean) => {
 
-    reply.update(<BotMessage>{content}</BotMessage>);
+    reply.update(<BotMessage>{processHashtagsAndRemovePhrases(content)}</BotMessage>);
     if (isFinal) {
 
       const final_context = extractHashtagText(content)
@@ -391,20 +410,9 @@ async function submitUserMessage(content: string) {
           console.log(data);
           reply.update(<BotMessage><DemoPage prospects_data={data}/> </BotMessage>);
           reply.done();
-          aiState.done([...aiState.get(), { role: "assistant", content }]);
+          aiState.done([...aiState.get(), { role: "user", content }]);
 
         }).catch(error => console.error('Error:', error));
-
-
-      // prospect(content).then(array_of_prospects => {
-      //   console.log(array_of_prospects); // Handle the data here
-      //   reply.update(<BotMessage>{extractHashtagText(content)} <DemoPage prospects_data={array_of_prospects}/> </BotMessage>);
-      //   reply.done();
-      //   aiState.done([...aiState.get(), { role: "assistant", content }]);
-  
-      // }).catch(error => {
-      //   console.error(error); // Handle any errors here
-      // });
       
 
 
