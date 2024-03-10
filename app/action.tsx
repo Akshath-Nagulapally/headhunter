@@ -211,7 +211,7 @@ async function submitUserMessage(content: string) {
   ]);
 
   const completion = runOpenAICompletion(openai, {
-    model: "gpt-4-turbo-preview",
+    model: "gpt-4",
     stream: true,
     messages: [
       {
@@ -230,7 +230,7 @@ think about the following:
 6)Education
 7)Current Employer(optional, can be left blank)
 
-Output 1 dork, surround it with #. Outline your reasoning after you have outputted the dork(one line max). There is absolutely no reason why you should step through the description sequentially.
+Output 1 dork, surround it with #. Outline your reasoning before you output the dork(one line max). There is absolutely no reason why you should step through the description sequentially. I dont want it to be the case where there there could be no results, so make your queries relatively broad.
 END OF INSTRUCTIONS`,
 
 // `\
@@ -340,15 +340,29 @@ END OF INSTRUCTIONS`,
     reply.update(<BotMessage>{content}</BotMessage>);
     if (isFinal) {
 
-      prospect(content).then(array_of_prospects => {
-        console.log(array_of_prospects); // Handle the data here
-        reply.update(<BotMessage>{extractHashtagText(content)} <DemoPage prospects_data={array_of_prospects}/> </BotMessage>);
-        reply.done();
-        aiState.done([...aiState.get(), { role: "assistant", content }]);
+      const final_context = extractHashtagText(content)
+      console.log("final_user_message:",final_context)
+
+      fetch('https://headhunter.vercel.app/api/hello?query='+final_context)
+        .then(response => response.json())
+        .then(data => {
+          console.log(data);
+          reply.update(<BotMessage>{extractHashtagText(content)} <DemoPage prospects_data={data}/> </BotMessage>);
+          reply.done();
+          aiState.done([...aiState.get(), { role: "assistant", content }]);
+
+        }).catch(error => console.error('Error:', error));
+
+
+      // prospect(content).then(array_of_prospects => {
+      //   console.log(array_of_prospects); // Handle the data here
+      //   reply.update(<BotMessage>{extractHashtagText(content)} <DemoPage prospects_data={array_of_prospects}/> </BotMessage>);
+      //   reply.done();
+      //   aiState.done([...aiState.get(), { role: "assistant", content }]);
   
-      }).catch(error => {
-        console.error(error); // Handle any errors here
-      });
+      // }).catch(error => {
+      //   console.error(error); // Handle any errors here
+      // });
       
 
 

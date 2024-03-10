@@ -39,7 +39,7 @@ export async function GET(request: any) {
       if (result && result.organic) {
         // Transform the "organic" array elements
         const transformedOrganicResults = result.organic.map((item: any, index: any) => ({
-          title: item.title,
+          name: item.title,
           link: item.link,
           id: 12 // Static id as per the requirement
         }));
