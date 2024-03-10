@@ -12,7 +12,7 @@ export const dynamic = 'force-dynamic'; // static by default, unless reading the
 export async function GET(request: any) {
     // Set up headers and request body as in your provided code
 
-    const serper_key = process.env.SERPER_API_KEY
+    const serper_key = process.env.SERPER_API_KEY || " ";
     const url = new URL(request.url);
     const query = url.searchParams.get("query"); // "q" is the name of the query parameter
   
