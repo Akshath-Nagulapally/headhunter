@@ -131,17 +131,37 @@ export function DataTable<TData, TValue>({
                 key={row.id}
                 data-state={row.getIsSelected() && "selected"}
               >
-                {row.getVisibleCells().map((cell) => (
-                  <TableCell key={cell.id}>
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </TableCell>
-                ))}
+                {row.getVisibleCells().map((cell) => {
+                  // Check if the current cell belongs to the "link" column
+                  if (cell.column.id === 'link') {
+                    // Render the cell content as a hyperlink
+                    return (
+                      <TableCell key={cell.id}>
+                          <a
+                            href={cell.getValue() as string | undefined}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style={{ color: 'blue', textDecoration: 'underline' }}
+                          >
+                            {cell.getValue() as string | undefined}
+                          </a>
+                      </TableCell>
+                    );
+                  } else {
+                    // For all other cells, use the default flexRender
+                    return (
+                      <TableCell key={cell.id}>
+                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      </TableCell>
+                    );
+                  }
+                })}
               </TableRow>
             ))
           ) : (
             <TableRow>
               <TableCell colSpan={columns.length} className="h-24 text-center">
-                No results.
+                No results found, try asking me to be more general.
               </TableCell>
             </TableRow>
           )}

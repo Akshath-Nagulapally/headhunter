@@ -1,8 +1,6 @@
 // Import the node-fetch module
 
-//todo list for the edge functions: console.log the input query so that its easier to debug
-//edge runtime
-//store the api key in an env variable so that its secure n shit
+
 
 import fetch, { Headers } from 'node-fetch';
   

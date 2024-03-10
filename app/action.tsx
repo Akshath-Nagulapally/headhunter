@@ -153,6 +153,53 @@ async function submitUserMessage(content: string) {
     return matches.length > 0 ? matches[0] : undefined;
   }
 
+  function removeDorkText(text: string) {
+    // Step 1: Remove all instances of the word "dork" (case-insensitive)
+    text = text.replace(/dork/gi, '');
+  
+    // Regular expression to match hashtags and text between them
+    const regex = /#([^#]*)/g;
+    let matches: string[] = []; // Explicitly declare as an array of strings
+    let match;
+    
+    // Loop over all matches and push them to the matches array
+    while ((match = regex.exec(text)) !== null) {
+      matches.push(match[0]);
+    }
+  
+    // Determine action based on the number of hashtags
+    if (matches.length === 1) {
+      // If there is one hashtag, remove the text after it
+      text = text.replace(new RegExp(matches[0] + '.*'), '');
+    } else if (matches.length > 1) {
+      if (matches.length % 2 === 0) {
+        // If there are an even number of hashtags, remove text between each pair of hashtags
+        matches.forEach((match, index) => {
+          if (index % 2 === 0) {
+            let endMatch = matches[index + 1] ? matches[index + 1] : '';
+            let pattern = match + '[^#]*' + endMatch;
+            text = text.replace(new RegExp(pattern, 'g'), '');
+          }
+        });
+      } else {
+        // If there is an odd number of hashtags greater than one, remove text between hashtags
+        // and also remove text after the final hashtag
+        matches.forEach((match, index) => {
+          if (index % 2 === 0) {
+            let endMatch = matches[index + 1] ? matches[index + 1] : '';
+            let pattern = match + '[^#]*' + endMatch;
+            text = text.replace(new RegExp(pattern, 'g'), '');
+          }
+        });
+        // Remove the text after the final hashtag
+        text = text.replace(new RegExp(matches[matches.length - 1] + '.*'), '');
+      }
+    }
+  
+    return text;
+  }
+  
+
   async function prospect(llmMessage: string) {
     const baseUrl = "https://3888-139-167-50-142.ngrok-free.app/prospect?query=";
     const url = `${baseUrl}${encodeURIComponent(extractHashtagText(llmMessage) || "")}`;
@@ -337,7 +384,7 @@ END OF INSTRUCTIONS`,
 
   completion.onTextContent((content: string, isFinal: boolean) => {
 
-    reply.update(<BotMessage>{content}</BotMessage>);
+    reply.update(<BotMessage>{removeDorkText(content)}</BotMessage>);
     if (isFinal) {
 
       const final_context = extractHashtagText(content)
@@ -347,7 +394,7 @@ END OF INSTRUCTIONS`,
         .then(response => response.json())
         .then(data => {
           console.log(data);
-          reply.update(<BotMessage>{extractHashtagText(content)} <DemoPage prospects_data={data}/> </BotMessage>);
+          reply.update(<BotMessage><DemoPage prospects_data={data}/> </BotMessage>);
           reply.done();
           aiState.done([...aiState.get(), { role: "assistant", content }]);
 
