@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/ui/button"
 import * as React from "react"
+import { ReloadIcon } from "@radix-ui/react-icons"
 
 
 import {
@@ -48,6 +49,9 @@ export function DataTable<TData, TValue>({
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([])
 
+  const [buttonText, setButtonText] = React.useState("Reveal Email"); //react email state setting
+
+
 
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
@@ -56,9 +60,6 @@ export function DataTable<TData, TValue>({
   const [columnVisibility, setColumnVisibility] =
   React.useState<VisibilityState>({})
   const [rowSelection, setRowSelection] = React.useState({})
-
-
-
 
   const table = useReactTable({
     data,
@@ -147,7 +148,27 @@ export function DataTable<TData, TValue>({
                           </a>
                       </TableCell>
                     );
-                  } else {
+                  } else if (cell.column.id === 'getContact') {
+                    // Render the cell content as a hyperlink
+                    const rowData = row.original as { link?: string };
+                    const rowDataAsString = rowData.link ?? '';
+                  
+                    return (
+                      <TableCell key={cell.id}>
+                    <Button 
+                      variant="link" 
+                      className="h-10 w-20"
+                      onClick={() => setButtonText(rowDataAsString)} // 3. Update the state variable on click
+                    >
+                    {buttonText} 
+                    
+                    </Button>
+
+                      </TableCell>
+                    );
+                  }
+                  
+                  else {
                     // For all other cells, use the default flexRender
                     return (
                       <TableCell key={cell.id}>

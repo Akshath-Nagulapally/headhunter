@@ -50,10 +50,22 @@ export const columns: ColumnDef<Payment>[] = [
     enableHiding: false,
   },
 
+
   {
     accessorKey: "name",
-    header: "Name",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Name
+          {/*<ArrowUpDown className="ml-2 h-4 w-4" />*/}
+        </Button>
+      )
+    },
   },
+
   {
     accessorKey: "link",
     header: ({ column }) => {
@@ -68,5 +80,15 @@ export const columns: ColumnDef<Payment>[] = [
       )
     },
   },
-  
+
+  {
+    accessorKey: "getContact",
+    header: ({ column }) => {
+      return (
+            <p>          
+              Get Contact
+            </p>
+      )
+    },
+  },  
 ]
