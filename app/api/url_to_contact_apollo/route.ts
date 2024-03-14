@@ -11,6 +11,7 @@ export const dynamic = 'force-dynamic';
 export async function GET(request: any) {
     const url = new URL(request.url);
     const linkedinUrl = url.searchParams.get("linkedinurl"); // Extract LinkedIn URL from query parameters
+
   
     var myHeaders = new Headers();
     myHeaders.append("Cache-Control", "no-cache");
@@ -26,11 +27,13 @@ export async function GET(request: any) {
       headers: myHeaders,
       body: raw,
     };
+
   
     try {
       const response = await fetch("https://api.apollo.io/v1/people/match", requestOptions);
       const result = await response.json() as Result; // Type assertion here
-          
+      console.log(linkedinUrl);
+
       if (result && result.person) {
         // Assuming result contains the data you need to return
         const email = result.person.email; // Access the email of the person object
@@ -48,3 +51,4 @@ export async function GET(request: any) {
 }
 
 export const runtime = 'nodejs';
+

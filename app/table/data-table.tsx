@@ -49,7 +49,38 @@ export function DataTable<TData, TValue>({
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([])
 
-  const [buttonText, setButtonText] = React.useState("Reveal Email"); //react email state setting
+  const api_route = "/api/url_to_contact_apollo?linkedinurl="
+
+  const [buttonTexts, setButtonTexts] = React.useState({}) as any;  //react email state setting
+  const handleButtonClick = async (rowId: any, rowDataAsString: string) => {
+    setButtonTexts((prevButtonTexts: any) => ({
+      ...prevButtonTexts,
+      [rowId]: rowDataAsString,
+    }));
+
+    const url = `${window.location.href}${api_route}${rowDataAsString}`;
+
+    try {
+      // Make the GET request using the Fetch API
+      const response = await fetch(url);
+      if (!response.ok) {
+        // Handle HTTP error responses
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      // Assuming the response is JSON
+      const data = await response.json();
+  
+      // Log the result
+      console.log(data);
+    } catch (error) {
+      // Handle any errors that occurred during the fetch
+      console.error("Fetch error: ", error);
+    }
+  
+  };
+
+
+  
 
 
 
@@ -158,11 +189,11 @@ export function DataTable<TData, TValue>({
                     <Button 
                       variant="link" 
                       className="h-10 w-20"
-                      onClick={() => setButtonText(rowDataAsString)} // 3. Update the state variable on click
+                      onClick={() => handleButtonClick(row.id, rowDataAsString)} // 3. Update the state variable on click
                     >
-                    {buttonText} 
-                    
-                    </Button>
+                {buttonTexts[row.id] || "Reveal Email"}                    
+                 
+                 </Button>
 
                       </TableCell>
                     );
