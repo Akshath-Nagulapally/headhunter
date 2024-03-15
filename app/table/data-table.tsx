@@ -49,35 +49,39 @@ export function DataTable<TData, TValue>({
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([])
 
-  const api_route = "/api/url_to_contact_apollo?linkedinurl="
+  const api_route = "/api/jstesting?linkedinurl="
 
   const [buttonTexts, setButtonTexts] = React.useState({}) as any;  //react email state setting
+  const [loadingStates, setLoadingStates] = React.useState<Record<string, boolean>>({});
+
   const handleButtonClick = async (rowId: any, rowDataAsString: string) => {
-    setButtonTexts((prevButtonTexts: any) => ({
-      ...prevButtonTexts,
-      [rowId]: rowDataAsString,
-    }));
+    // Indicate the start of loading for this specific row's button
+    setLoadingStates((prev) => ({ ...prev, [rowId]: true }));
 
     const url = `${window.location.href}${api_route}${rowDataAsString}`;
 
     try {
-      // Make the GET request using the Fetch API
       const response = await fetch(url);
       if (!response.ok) {
-        // Handle HTTP error responses
         throw new Error(`HTTP error! status: ${response.status}`);
+
       }
-      // Assuming the response is JSON
-      const data = await response.json();
-  
-      // Log the result
-      console.log(data);
+      const data = await response.text();
+
+      setButtonTexts((prevButtonTexts: any) => ({
+        ...prevButtonTexts,
+        [rowId]: data,
+      }));
     } catch (error) {
-      // Handle any errors that occurred during the fetch
       console.error("Fetch error: ", error);
+
+    } finally {
+      // Indicate the end of loading regardless of success or failure
+      setLoadingStates((prev) => ({ ...prev, [rowId]: false }));
     }
-  
   };
+ 
+  
 
 
   
@@ -183,17 +187,27 @@ export function DataTable<TData, TValue>({
                     // Render the cell content as a hyperlink
                     const rowData = row.original as { link?: string };
                     const rowDataAsString = rowData.link ?? '';
+                    const isLoading = loadingStates[row.id];
+
                   
                     return (
                       <TableCell key={cell.id}>
-                    <Button 
-                      variant="link" 
-                      className="h-10 w-20"
-                      onClick={() => handleButtonClick(row.id, rowDataAsString)} // 3. Update the state variable on click
-                    >
-                {buttonTexts[row.id] || "Reveal Email"}                    
-                 
-                 </Button>
+                      {isLoading ? (
+                        // Render loading state
+                        <Button disabled>
+                          <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
+                          Please wait
+                        </Button>
+                      ) : (
+                        // Render button with API response or default text
+                        <Button
+                          variant="link"
+                          className="h-10 w-20"
+                          onClick={() => handleButtonClick(row.id, rowDataAsString)}
+                        >
+                          {buttonTexts[row.id] || "Reveal Email"}
+                        </Button>
+                      )}
 
                       </TableCell>
                     );

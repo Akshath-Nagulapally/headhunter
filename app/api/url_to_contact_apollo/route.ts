@@ -42,12 +42,16 @@ export async function GET(request: any) {
           headers: { 'Content-Type': 'application/json' }
         });
       } else {
-        return new Response('No results found', { status: 404 });
+        return new Response(JSON.stringify({email: "email not found"}), {
+          headers: { 'Content-Type': 'application/json' }
+        });
       }
     } catch (error) {
       console.log('error', error);
-      return new Response('Error fetching data', { status: 500 });
-    }
+      return new Response(JSON.stringify({email: "email not found"}), {
+        headers: { 'Content-Type': 'application/json' }
+      });
+  }
 }
 
 export const runtime = 'nodejs';
