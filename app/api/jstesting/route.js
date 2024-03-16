@@ -25,8 +25,13 @@ export async function GET(request) {
         const jsonData = await response.json(); // Await the JSON parsing of the response body
         console.log(jsonData); // Log the JSON data to the console
         const email = jsonData.response.email.email;
+        if (email) {
+            return new Response(email); // Use JSON data in your response
+        } else {
+            // If email is null or not found
+            return new Response("email not found");
+        }
 
-        return new Response(email); // Use JSON data in your response
     } catch (error) {
         console.error(error); // Log any errors to the console
         return new Response("email not found"); // Return an error response
