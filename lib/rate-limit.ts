@@ -14,7 +14,7 @@ const redis = new Redis({
 
 export const messageRateLimit = new Ratelimit({
   redis,
-  limiter: Ratelimit.slidingWindow(10, "15 m"),
+  limiter: Ratelimit.slidingWindow(20, "15 m"),
   analytics: true,
   prefix: "ratelimit:geui:msg",
 });

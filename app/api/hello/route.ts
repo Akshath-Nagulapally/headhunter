@@ -13,7 +13,9 @@ export async function GET(request: any) {
     const serper_key = process.env.SERPER_API_KEY || " ";
     const url = new URL(request.url);
     const query = url.searchParams.get("query"); // "q" is the name of the query parameter
-  
+
+
+
     var myHeaders = new Headers();
     myHeaders.append("X-API-KEY", serper_key);
     myHeaders.append("Content-Type", "application/json");
@@ -32,12 +34,20 @@ export async function GET(request: any) {
     // Make the fetch request and await its response
     try {
 
+  
+
       const response = await fetch("https://google.serper.dev/search", requestOptions);
       const result: any = await response.json();
       console.log("this was the user query:", query);
       // Return the result as a server response
 
-      if (result && result.organic) {
+      if (query==="null"){
+        return new Response(null, {
+          headers: { 'Content-Type': 'application/json' }
+        });
+
+      
+      } else if (result && result.organic) {
         // Transform the "organic" array elements
         const transformedOrganicResults = result.organic.map((item: any, index: any) => ({
           name: item.title,
