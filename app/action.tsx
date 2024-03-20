@@ -135,7 +135,7 @@ async function submitUserMessage(content: string) {
     
     if (hashtagCount === 0) {
       // Delete everything from the hashtag to the end
-      return "no hashtags";
+      return text;
     }
 
     // If there is exactly one hashtag
@@ -238,17 +238,12 @@ async function submitUserMessage(content: string) {
     messages: [
       {
         role: "user",
-        content: `I'm tasked with finding profiles suitable for a specific job description from a certain company. Your role is to create a Google Dork to locate these profiles on LinkedIn. Please follow these guidelines to ensure the Dork meets the requirements:
-        Encase the dork within hashtags. Make sure you go through the checklist each time and count till 8.
-
-        1)Exclude the company name to keep searches unbiased.
-        2)Focus on LinkedIn profiles, specifying the location by changing the location's domain (e.g., site:ca.linkedin.com/in/ for LinkedIn Canada) or keep it broad with .com.
-        3)Use job titles and similar results modifiers to refine the search.
-        4)Include essential keywords and use logical operators (e.g., AND, OR) to combine them effectively.
-        5)Exclude irrelevant keywords to narrow down the search.
-        6)Consider including education qualifications if they're crucial for the job.
-        7)Mentioning the current employer is optional; omit it to keep the search wide.
-        8)Create a Google Dork that is specific enough to find relevant profiles but broad enough to avoid zero results through the use of the AND and OR operators`,
+        content: `
+        The goal is to find linkedin profiles of individuals who meet the job criteria. Generate a Google dork that finds the most relevant professionals. 
+        Focus on identifying unique skills and qualifications mentioned in the job description, 
+        Use advanced search operators to refine and broaden the results effectively.
+        Make clear and concise arguments for why you are including anything before you land on your final dork. Encase your dork within hashtags
+        `
       },
       ...aiState.get().map((info: any) => ({
         role: info.role,
