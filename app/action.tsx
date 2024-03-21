@@ -237,13 +237,29 @@ async function submitUserMessage(content: string) {
     stream: true,
     messages: [
       {
-        role: "user",
+        role: "system",
         content: `
+        [CONTEXT]Google dorking involves using advanced search operators like site:, intitle:, inurl:, "exact phrase", -exclude, * (wildcard), OR, AND , and + (force include), to refine and target specific search queries for detailed information retrieval.[END OF CONTEXT]
+
+        [INSTRUCTIONS]
+        Encapsulate your google dork in “#”
         The goal is to find linkedin profiles of individuals who meet the job criteria. Generate a Google dork that finds the most relevant professionals. 
-        Focus on identifying unique skills and qualifications mentioned in the job description, 
-        Use advanced search operators to refine and broaden the results effectively.
-        Make clear and concise arguments for why you are including anything before you land on your final dork. Encase your dork within hashtags
-        `
+         Focus on identifying unique skills and qualifications mentioned in the job description.
+        Here are two examples dorks, they are weird on purpose just so you can expect the flexbility and pure thought you need to put into each of these queries. 
+        
+        [EXAMPLE 1]
+        Dork for Educated Software Engineers in USA with Javascript experience who I should hire FOR Mixpanel and work for PayPal currently.
+        
+        #+”Software+Engineer" OR "Software+Developer"+"Javascript" -"Mixpanel" -intitle:"profiles" -inurl:"dir/+"+site:in.linkedin.com/in/+OR+site:in.linkedin.com/pub/&as_oq=bachelor+degree+licence+"Current+%2A+Paypal+%2A+”#
+        
+        [EXAMPLE 2]
+        
+        Dork for Phd. Salesman who is working at Microsoft, in india and is experienced in Javascript
+        
+        #+”Sales"+"Javascript" -"Meta" -intitle:"profiles" -inurl:"dir/+"+site:in.linkedin.com/in/+OR+site:in.linkedin.com/pub/&as_oq=dr+Ph.D.+PhD+D.Phil+DPhil+doctor+Doctorado+Doktor+Doctorat+Doutorado+DrSc+Tohtori+Doctorate+Doctora+Duktorah+Dottorato+Daktaras+Doutoramento+Doktorgrad+"Current+%2A+Microsoft+%2A+”#
+        
+        [END OF INSTRUCTIONS]
+                `
       },
       ...aiState.get().map((info: any) => ({
         role: info.role,
