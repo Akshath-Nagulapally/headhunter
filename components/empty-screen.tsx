@@ -105,10 +105,10 @@ export function EmptyScreen({submitMessage,}: {submitMessage: (message: string) 
     <div className="mx-auto max-w-2xl px-4">
       <div className="rounded-lg border bg-background p-8 mb-4">
         <h1 className="mb-2 text-lg font-semibold">
-          Welcome to Luup AI Headhunter
+          Welcome to Goark.ai Headhunter
         </h1>
         <p className="mb-2 leading-normal text-muted-foreground">
-          Enter a job description and the assistant will find the source the best people for the job on linkedin
+          Enter a job description and find the best people for the job.
         </p>
         <p className="mb-2 text-mb font-semibold">Try a search</p>
         <div className="mt-4 flex flex-col items-start space-y-2 mb-4">
