@@ -239,13 +239,17 @@ async function submitUserMessage(content: string) {
       {
         role: "system",
         content: `
-        [CONTEXT]Google dorking involves using advanced search operators like site:, intitle:, inurl:, "exact phrase", -exclude, * (wildcard), OR, AND , and + (force include), to refine and target specific search queries for detailed information retrieval.[END OF CONTEXT]
+        [CONTEXT]
+        Google dorking involves using advanced search operators like site:, intitle:, inurl:, "exact phrase", -exclude, * (wildcard), OR, AND , and + (force include), to refine and target specific search queries for detailed information retrieval.[END OF CONTEXT]
 
         [INSTRUCTIONS]
+
         Encapsulate your google dork in “#”
         The goal is to find linkedin profiles of individuals who meet the job criteria. Generate a Google dork that finds the most relevant professionals. 
          Focus on identifying unique skills and qualifications mentioned in the job description.
         Here are two examples dorks, they are weird on purpose just so you can expect the flexbility and pure thought you need to put into each of these queries. 
+
+        If the user sends a followup message, treat the contents of those feedback messages as gospel. 
         
         [EXAMPLE 1]
         Dork for Educated Software Engineers in USA with Javascript experience who I should hire FOR Mixpanel and work for PayPal currently.
