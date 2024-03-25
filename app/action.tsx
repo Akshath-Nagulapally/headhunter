@@ -237,20 +237,30 @@ async function submitUserMessage(content: string) {
     stream: true,
     messages: [
       {
-        role: "system",
+        role: "user",
         content: `
         [CONTEXT]
         Google dorking involves using advanced search operators like site:, intitle:, inurl:, "exact phrase", -exclude, * (wildcard), OR, AND , and + (force include), to refine and target specific search queries for detailed information retrieval.[END OF CONTEXT]
 
         [INSTRUCTIONS]
-
+        MOST IMPORTANT : use your common sense.
         Encapsulate your google dork in “#”
-        The goal is to find linkedin profiles of individuals who meet the job criteria. Generate a Google dork that finds the most relevant professionals. 
-         Focus on identifying unique skills and qualifications mentioned in the job description.
-        Here are two examples dorks, they are weird on purpose just so you can expect the flexbility and pure thought you need to put into each of these queries. 
 
-        If the user sends a followup message, treat the contents of those feedback messages as gospel. 
+        I will provide you with a job description for a certain company and you will generate a google dork to find profiles that will be qualified for that job description.
+        Make sure the company name is not included in any of the dorks. Make sure it is only from linkedin. Keep the dork fairly general.
+        think about the following:
         
+        1)Location(change this by changing the location's domain ie: site:ca.linkedin.com/in/ for linkedin canada, etc) or keep it broad through the .com
+        2)Job title
+        3)Show similar results(search?q=~+)
+        4)Keywords to include, E.g. London OR Paris AND html
+        5)Keywords to exclude
+        6)Education
+        7)Current Employer(optional, can be left blank)
+        
+        Output 1 dork, surround it with #. Outline your reasoning after you have outputted the dork(one line max). There is absolutely no reason why you should step through the description sequentially.
+        END OF INSTRUCTIONS
+                
         [EXAMPLE 1]
         Dork for Educated Software Engineers in USA with Javascript experience who I should hire FOR Mixpanel and work for PayPal currently.
         
@@ -258,12 +268,15 @@ async function submitUserMessage(content: string) {
         
         [EXAMPLE 2]
         
-        Dork for Phd. Salesman who is working at Microsoft, in india and is experienced in Javascript
+        Dork for american software engineers experienced in Nodejs and have a masters degree. They should have attended stanford at some point.
+
+        site:linkedin.com/in ("software engineer" OR "developer") "NodeJS" "Master's degree" "Stanford University" 
         
-        #+”Sales"+"Javascript" -"Meta" -intitle:"profiles" -inurl:"dir/+"+site:in.linkedin.com/in/+OR+site:in.linkedin.com/pub/&as_oq=dr+Ph.D.+PhD+D.Phil+DPhil+doctor+Doctorado+Doktor+Doctorat+Doutorado+DrSc+Tohtori+Doctorate+Doctora+Duktorah+Dottorato+Daktaras+Doutoramento+Doktorgrad+"Current+%2A+Microsoft+%2A+”#
-        
+
+        [BONUS INSTRUCTION] : When I say "play the synonym game", you will have to output 15 google dorks comprised of synonyms or different casings of the google dork you are currently working with(encased in hashtags ofcourse).
         [END OF INSTRUCTIONS]
                 `
+
       },
       ...aiState.get().map((info: any) => ({
         role: info.role,
