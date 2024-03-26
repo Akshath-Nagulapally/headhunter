@@ -272,7 +272,6 @@ async function submitUserMessage(content: string) {
 
         site:linkedin.com/in ("software engineer" OR "developer") "NodeJS" "Master's degree" "Stanford University" 
         
-
         [BONUS INSTRUCTION] : When I say "play the synonym game", you will have to output 15 google dorks comprised of synonyms or different casings of the google dork you are currently working with(encased in hashtags ofcourse).
         [END OF INSTRUCTIONS]
                 `
