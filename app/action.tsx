@@ -235,7 +235,7 @@ async function submitUserMessage(content: string) {
       const headersList = headers();
       const root_url = headersList.get('host');
 
-      fetch('http://localhost:3000/api/hello?query='+final_context)
+      fetch('https://aiheadhunter.vercel.app/api/hello?query='+final_context)
         .then(response => response.json())
         .then(data => {
 
