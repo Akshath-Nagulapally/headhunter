@@ -15,6 +15,15 @@ const exampleMessages = [
     heading: "Find Sales professionals in India",
     message: `Find Sales professionals in India`,
   },
+  {
+    heading: "Find Program Managers based out of the USA",
+    message: `Find Program Managers based out of the USA`,
+  },
+  {
+    heading: "Find Accounting professionals in Japan",
+    message: `Find Accounting professionals in Japan`,
+  },
+
 ];
 
 
@@ -71,7 +80,7 @@ export function EmptyScreen({submitMessage,}: {submitMessage: (message: string) 
         <p className="mb-2 leading-normal text-muted-foreground">
           Enter a job description and find the best people for the job.
         </p>
-        <p className="mb-2 text-mb font-semibold">Try a search</p>
+        <p className="mb-2 text-mb font-semibold">Try a search by clicking below:</p>
         <div className="mt-4 flex flex-col items-start space-y-2 mb-4">
           {exampleMessages.map((message, index) => (
             <Button

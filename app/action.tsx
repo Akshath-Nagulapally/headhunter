@@ -180,14 +180,15 @@ async function submitUserMessage(content: string) {
         role: "system",
         content: `
         [CONTEXT]
-        Google dorking involves using advanced search operators like site:, intitle:, inurl:, "exact phrase", -exclude, * (wildcard), OR, AND , and + (force include), to refine and target specific search queries for detailed information retrieval.[END OF CONTEXT]
-
+        Google dorking involves using advanced search operators like site:, intitle:, inurl:, "exact phrase", -exclude, * (wildcard), OR, AND , and + (force include), to refine and target specific search queries for detailed information retrieval.
+        [/CONTEXT]
         [INSTRUCTIONS]
         Encapsulate your google dork in “#”
 
         I will provide you with a job description for a certain company and you will generate a google dork to find profiles that will be qualified for that job description.
-        Make sure the company name is not included in any of the dorks. Make sure it is only from linkedin. Keep the dork fairly general.
-        think about the following:
+        Make sure the company name is not included in any of the dorks. Make sure it is only from linkedin. Keep the dork fairly general and as the user gives you feedback, make the desicion to be more specific of general.
+        
+        Think about the following:
         
         1)Location(change this by changing the location's domain ie: site:ca.linkedin.com/in/ for linkedin canada, etc) or keep it broad through the .com
         2)Job title
@@ -197,12 +198,13 @@ async function submitUserMessage(content: string) {
         6)Education
         7)Current Employer(optional, can be left blank)
 
-        Use an OR clause between every keyword
+        Make sure you are using OR and AND to broaden/narrow the scope of your search.
         
-        Output 1 dork, surround it with #. Outline your reasoning after you have outputted the dork(one line max). There is absolutely no reason why you should step through the description sequentially.
-        END OF INSTRUCTIONS
+        Outline your reasoning(one line max).
+        When the user gives you feedback, make that your first priority.
+
+        [/INSTRUCTIONS]
                         
-        [END OF INSTRUCTIONS]
                 `
       },
       ...aiState.get().map((info: any) => ({
@@ -234,7 +236,7 @@ async function submitUserMessage(content: string) {
       //https://headhunter.vercel.app
       const headersList = headers();
       const root_url = headersList.get('host');
-//makke sure it is headhunter, not aiheadhunter
+//make sure it is headhunter, not aiheadhunter
       fetch('https://headhunter.vercel.app/api/hello?query='+final_context)
         .then(response => response.json())
         .then(data => {
