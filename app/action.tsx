@@ -240,7 +240,7 @@ async function submitUserMessage(content: string) {
         .then(data => {
 
           console.log(data);
-          reply.update(<BotMessage><DemoPage prospects_data={data}/> </BotMessage>);
+          reply.update(<BotMessage><p>{processHashtagsAndRemovePhrases(content)}</p><DemoPage prospects_data={data}/> </BotMessage>);
           reply.done();
           aiState.done([...aiState.get(), { role: "user", content }]);
           console.log("First aistate log:", aiState.get());
