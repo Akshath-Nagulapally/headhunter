@@ -8,8 +8,8 @@ import React, { useEffect, useState } from 'react';
 
 const exampleMessages = [
   {
-    heading: "Software engineers with nodejs experience and bachelors degree",
-    message: `Software engineers with nodejs experience with atleast a bachelors degree`
+    heading: "Find Software engineers with nodejs experience and bachelors degree",
+    message: `Find Software engineers with nodejs experience with atleast a bachelors degree`
   },
   {
     heading: "Find Sales professionals in India",
