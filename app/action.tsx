@@ -234,8 +234,8 @@ async function submitUserMessage(content: string) {
       //https://headhunter.vercel.app
       const headersList = headers();
       const root_url = headersList.get('host');
-
-      fetch('https://aiheadhunter.vercel.app/api/hello?query='+final_context)
+//makke sure it is headhunter, not aiheadhunter
+      fetch('https://headhunter.vercel.app/api/hello?query='+final_context)
         .then(response => response.json())
         .then(data => {
 
