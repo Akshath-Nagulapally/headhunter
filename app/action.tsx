@@ -35,78 +35,7 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY || "",
 });
 
-
-
-
-
-async function confirmPurchase(symbol: string, price: number, amount: number) {
-  
-  "use server";
-    
-
-  const aiState = getMutableAIState<typeof AI>();
-
-  const purchasing = createStreamableUI(
-    <div className="inline-flex items-start gap-1 md:items-center">
-      {spinner}
-      <p className="mb-2">
-        Purchasing {amount} ${symbol}...
-      </p>
-    </div>,
-  );
-
-  const systemMessage = createStreamableUI(null);
-
-  runAsyncFnWithoutBlocking(async () => {
-    // You can update the UI at any point.
-    await sleep(1000);
-
-    purchasing.update(
-      <div className="inline-flex items-start gap-1 md:items-center">
-        {spinner}
-        <p className="mb-2">
-          Purchasing {amount} ${symbol}... working on it...
-        </p>
-      </div>,
-    );
-
-    await sleep(1000);
-
-    purchasing.done(
-      <div>
-        <p className="mb-2">
-          You have successfully purchased {amount} ${symbol}. Total cost:{" "}
-          {formatNumber(amount * price)}
-        </p>
-      </div>,
-    );
-
-    systemMessage.done(
-      <SystemMessage>
-        You have purchased {amount} shares of {symbol} at ${price}. Total cost ={" "}
-        {formatNumber(amount * price)}.
-      </SystemMessage>,
-    );
-
-    aiState.done([
-      ...aiState.get(),
-      {
-        role: "system",
-        content: `[User has purchased ${amount} shares of ${symbol} at ${price}. Total cost = ${
-          amount * price
-        }]`,
-      },
-    ]);
-  });
-
-  return {
-    purchasingUI: purchasing.value,
-    newMessage: {
-      id: Date.now(),
-      display: systemMessage.value,
-    },
-  };
-}
+//dorks = [];
 
 async function submitUserMessage(content: string) {
   "use server";
@@ -126,6 +55,17 @@ async function submitUserMessage(content: string) {
     return matches.length > 0 ? matches[0] : "null";
   }
 
+  // function createPrompt(text: string) {
+  //   // Create a string from the dorks array, separating each element with ", "
+  //   const dorksString = dorks.join(", ");
+  
+  //   // Concatenate the dorksString with the input text
+  //   // You can adjust the transition sentence as needed
+  //   const transition = "Here was the gradual progression of dorks that you generated: " + dorksString + ". And here is my next request: " + text;
+  
+  //   return transition;
+  // }
+  
   function processHashtagsAndRemovePhrases(text: string) {
     // Remove specified phrases
     text = text.replace(/google dork|dork/gi, '');
@@ -204,8 +144,7 @@ async function submitUserMessage(content: string) {
   }
   
 
-  
-
+//////////////////////////////////////////////////////////////////////////
   const reply = createStreamableUI(
     <BotMessage className="items-center">{spinner}</BotMessage>,
   );
@@ -232,18 +171,18 @@ async function submitUserMessage(content: string) {
     },
   ]);
 
+
   const completion = runOpenAICompletion(openai, {
     model: "gpt-4",
     stream: true,
     messages: [
       {
-        role: "user",
+        role: "system",
         content: `
         [CONTEXT]
         Google dorking involves using advanced search operators like site:, intitle:, inurl:, "exact phrase", -exclude, * (wildcard), OR, AND , and + (force include), to refine and target specific search queries for detailed information retrieval.[END OF CONTEXT]
 
         [INSTRUCTIONS]
-        MOST IMPORTANT : use your common sense.
         Encapsulate your google dork in “#”
 
         I will provide you with a job description for a certain company and you will generate a google dork to find profiles that will be qualified for that job description.
@@ -257,25 +196,14 @@ async function submitUserMessage(content: string) {
         5)Keywords to exclude
         6)Education
         7)Current Employer(optional, can be left blank)
+
+        Use an OR clause between every keyword
         
         Output 1 dork, surround it with #. Outline your reasoning after you have outputted the dork(one line max). There is absolutely no reason why you should step through the description sequentially.
         END OF INSTRUCTIONS
-                
-        [EXAMPLE 1]
-        Dork for Educated Software Engineers in USA with Javascript experience who I should hire FOR Mixpanel and work for PayPal currently.
-        
-        #+”Software+Engineer" OR "Software+Developer"+"Javascript" -"Mixpanel" -intitle:"profiles" -inurl:"dir/+"+site:in.linkedin.com/in/+OR+site:in.linkedin.com/pub/&as_oq=bachelor+degree+licence+"Current+%2A+Paypal+%2A+”#
-        
-        [EXAMPLE 2]
-        
-        Dork for american software engineers experienced in Nodejs and have a masters degree. They should have attended stanford at some point.
-
-        site:linkedin.com/in ("software engineer" OR "developer") "NodeJS" "Master's degree" "Stanford University" 
-        
-        [BONUS INSTRUCTION] : When I say "play the synonym game", you will have to output 15 google dorks comprised of synonyms or different casings of the google dork you are currently working with(encased in hashtags ofcourse).
+                        
         [END OF INSTRUCTIONS]
                 `
-
       },
       ...aiState.get().map((info: any) => ({
         role: info.role,
@@ -290,31 +218,43 @@ async function submitUserMessage(content: string) {
         parameters: z.object({}),
       },
     ],
-    temperature: 0,
+    temperature: 0.5,
   });
+  
 
   completion.onTextContent((content: string, isFinal: boolean) => {
 
     reply.update(<BotMessage>{processHashtagsAndRemovePhrases(content)}</BotMessage>);
     if (isFinal) {
+      //console.log(createPrompt(content));
+      const final_context = extractHashtagText(content);
+      console.log("adding this dork to the user context:",final_context);
+      //dorks.push(final_context);
+      //console.log("the user context has been updated to this", dorks);
+      //https://headhunter.vercel.app
+      const headersList = headers();
+      const root_url = headersList.get('host');
 
-      const final_context = extractHashtagText(content)
-      console.log("final_user_message:",final_context)
-
-      fetch('https://headhunter.vercel.app/api/hello?query='+final_context)
+      fetch('http://localhost:3000/api/hello?query='+final_context)
         .then(response => response.json())
         .then(data => {
+
           console.log(data);
           reply.update(<BotMessage><DemoPage prospects_data={data}/> </BotMessage>);
           reply.done();
           aiState.done([...aiState.get(), { role: "user", content }]);
+          console.log("First aistate log:", aiState.get());
+          aiState.update([{ role: "user", content }]);
+          console.log("Second AIstate log:", aiState.get());
+
 
         }).catch(error => console.error('Error:', error));
-      
-
 
     }
+
+
   });
+
 
      
 
@@ -332,6 +272,7 @@ async function submitUserMessage(content: string) {
         content: `[User has requested to throw confetti]`,
       },
     ]);
+    console.log(aiState.get());
   });
 
 
@@ -358,7 +299,6 @@ const initialUIState: {
 export const AI = createAI({
   actions: {
     submitUserMessage,
-    confirmPurchase,
   },
   initialUIState,
   initialAIState,

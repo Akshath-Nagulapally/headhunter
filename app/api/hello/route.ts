@@ -21,7 +21,9 @@ export async function GET(request: any) {
     myHeaders.append("Content-Type", "application/json");
   
     var raw = JSON.stringify({
-      "q": query
+      "q": query,
+      "num": 100
+
     });
   
       
@@ -39,6 +41,7 @@ export async function GET(request: any) {
       const response = await fetch("https://google.serper.dev/search", requestOptions);
       const result: any = await response.json();
       console.log("this was the user query:", query);
+      console.log(result);
       // Return the result as a server response
 
       if (query==="null"){
