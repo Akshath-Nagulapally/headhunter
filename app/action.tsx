@@ -25,17 +25,66 @@ import { z } from "zod";
 import { StockSkeleton } from "@/components/llm-stocks/stock-skeleton";
 import { EventsSkeleton } from "@/components/llm-stocks/events-skeleton";
 import { StocksSkeleton } from "@/components/llm-stocks/stocks-skeleton";
+
 import { messageRateLimit } from "@/lib/rate-limit";
-import { headers } from "next/headers";
+import {messageRateLimitNoLogin} from "@/lib/rate-limit";
 import { DataTable } from "./table/data-table";
 import DemoPage from './table/RenderedTable';
 import { Payment, columns } from "./table/columns";
+import React, { useContext } from 'react';
+import {useCounterStore} from './store';
+import { getState } from './store';
+import { headers } from 'next/headers';
+
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY || "",
 });
 
-//dorks = [];
+
+function get_url() {
+  const headersList = headers();
+  const domain = headersList.get('host') || "";
+  const fullUrl = headersList.get('referer') || "";
+
+  console.log(fullUrl);
+
+  return fullUrl;
+}
+
+function get_and_parse_url() {
+  // Call get_url to retrieve the full URL
+  const fullUrl = get_url();
+
+  // Use a regular expression to extract the last non-empty segment after a slash
+  const match = fullUrl.match(/\/([^\/]+)\/?$/);
+
+  // Check if a valid segment was found and it is not the string "null"
+  if (match && match[1] && match[1].toLowerCase() !== "null") {
+    console.log("userid found", match[1]);
+    return match[1];
+  }
+  return null;
+}
+
+
+
+
+async function getUserDetails(id_user: string) {
+
+  try {
+    const response = await fetch(`https://aiheadhunter.vercel.app/api/user_details?u_id=${id_user}`);
+    const data = await response.text(); // This parses the JSON body of the response
+    //console.log('Success:', data);
+    return data;
+  } catch (error) {
+    console.log(error)
+    console.error('Error:', error);
+  }
+}
+
+
+
 
 async function submitUserMessage(content: string) {
   "use server";
@@ -84,8 +133,6 @@ async function submitUserMessage(content: string) {
       return text.split('#')[0];
     }
 
-
-    
     // If there are exactly two hashtags
     if (hashtagCount === 2) {
       // Use a regular expression to remove the text between the two hashtags, including the hashtags
@@ -149,18 +196,63 @@ async function submitUserMessage(content: string) {
     <BotMessage className="items-center">{spinner}</BotMessage>,
   );
 
-  const ip = headers().get("x-real-ip") ?? "local";
-  const rl = await messageRateLimit.limit(ip);
+  // const user_id = getUserId();  // This will get the current userid
+  // console.log("userid found from action.tsx", user_id);
+  
+  // //const user_id = '1234';
+  //const user_id = 
+  //console.log("zustand action", user_id);
+  //const user_login = await getUserDetails(user_id);
+  //console.log(user_login);
 
-  if (!rl.success) {
-    reply.done(
-      <BotMessage>Rate limit exceeded. Try again in 15 minutes.</BotMessage>,
-    );
-    return {
-      id: Date.now(),
-      display: reply.value,
-    };
+  const ip = headers().get("x-real-ip") ?? "local";
+  const user_identity_token = get_and_parse_url();
+
+  //if (!user){} logic here starts, this is where we rate limit the unsubscribed/let the subscribed pass
+  
+  if (user_identity_token === null) {
+    console.log('is null');
+    const rl = await messageRateLimitNoLogin.limit(ip);
+
+    if (!rl.success) {
+      console.log("IP address:", ip);
+      reply.done(
+        <BotMessage>Maximum number of anonymous requests has been reached. Sign up/in to continue!</BotMessage>,
+      );
+      return {
+        id: Date.now(),
+        display: reply.value,
+      };
+    }
+
+
+  } else {
+
+    const rl = await messageRateLimit.limit(ip);
+
+    //do a database check to make sure that noone found the url and is scamming you by using a fake user identity.
+
+    if (!rl.success) {
+      console.log(ip);
+      reply.done(
+        <BotMessage>Maximum requests exhausted for the next 15 minutes</BotMessage>,
+      );
+      return {
+        id: Date.now(),
+        display: reply.value,
+      };
+    }
   }
+  
+  
+
+
+  //if (!user){} logic here ends
+  
+  //else user logic here starts.
+
+  //basically if a user has an account then it is here. One nice thing about this is that i can just set the rate limit based on his usage.
+  // I dont have to store any of these in a database, i just do it through vercel kv rate limiting based on the tier that they are in.
 
   const aiState = getMutableAIState<typeof AI>();
   aiState.update([
@@ -241,13 +333,13 @@ async function submitUserMessage(content: string) {
         .then(response => response.json())
         .then(data => {
 
-          console.log(data);
+          //console.log(data);
           reply.update(<BotMessage><p>{processHashtagsAndRemovePhrases(content)}</p><DemoPage prospects_data={data}/> </BotMessage>);
           reply.done();
           aiState.done([...aiState.get(), { role: "user", content }]);
-          console.log("First aistate log:", aiState.get());
+          //console.log("First aistate log:", aiState.get());
           aiState.update([{ role: "user", content }]);
-          console.log("Second AIstate log:", aiState.get());
+          //console.log("Second AIstate log:", aiState.get());
 
 
         }).catch(error => console.error('Error:', error));
@@ -258,7 +350,6 @@ async function submitUserMessage(content: string) {
   });
 
 
-     
 
   completion.onFunctionCall("throw_confetti", () => {
     reply.done(
@@ -274,7 +365,7 @@ async function submitUserMessage(content: string) {
         content: `[User has requested to throw confetti]`,
       },
     ]);
-    console.log(aiState.get());
+    //console.log(aiState.get());
   });
 
 

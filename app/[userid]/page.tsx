@@ -1,6 +1,6 @@
 'use client';
-
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState} from 'react';
+import React from 'react';
 
 import { useUIState, useActions, useAIState } from 'ai/rsc';
 import { UserMessage } from '@/components/llm-stocks/message';
@@ -20,9 +20,37 @@ import { Button } from '@/components/ui/button';
 import { ChatList } from '@/components/chat-list';
 import { EmptyScreen } from '@/components/empty-screen';
 import { toast } from '@/components/ui/use-toast';
-
+import {useCounterStore} from '../store';
 export default function Page({ params }: { params: { userid: string } }) {
-  console.log(params.userid);
+  //console.log(params.userid);
+
+
+
+  const [useridentity, set_useridentity] = useState(params.userid);
+
+  
+
+  
+  //Zustand state management
+
+
+  const setCount = () => {
+    useCounterStore.setState({ count: useridentity });
+  };
+
+  useEffect(() => {
+    setCount();
+  }, []);
+
+  setCount();
+
+
+
+  console.log("user identity from zustand:", useCounterStore.getState().count);
+  //end of zustand state management.
+
+  console.log("user identity", useridentity);
+
 
 
   const [messages, setMessages] = useUIState<typeof AI>();
@@ -56,6 +84,7 @@ export default function Page({ params }: { params: { userid: string } }) {
   }, [inputRef]);
 
   return (
+
     <div>
       <div className="pb-[200px] pt-4 md:pt-10">
         {messages.length ? (

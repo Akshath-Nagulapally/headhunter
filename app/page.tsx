@@ -154,6 +154,12 @@ export default function Page() {
                   value={inputValue}
                   onChange={e => setInputValue(e.target.value)}
                 />
+                             
+                <Button className="min-h-[60px] w-full resize-none bg-black text-white px-4 py-[1.3rem] focus-within:outline-none focus-within:border-white focus-within:border sm:text-sm">
+                  5
+                </Button>
+
+              
                 <div className="absolute right-0 top-4 sm:right-4">
                   <Tooltip>
                     <TooltipTrigger asChild>

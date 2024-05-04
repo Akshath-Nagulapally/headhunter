@@ -18,3 +18,12 @@ export const messageRateLimit = new Ratelimit({
   analytics: true,
   prefix: "ratelimit:geui:msg",
 });
+
+export const messageRateLimitNoLogin = new Ratelimit({
+  redis,
+  limiter: Ratelimit.slidingWindow(5, "131400 m"),
+  analytics: true,
+  prefix: "ratelimit:geui:msg",
+});
+
+//Just make a bunch of tiered ones here. So the rate limits would just be different for every tier.

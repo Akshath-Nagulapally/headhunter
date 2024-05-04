@@ -91,4 +91,15 @@ export const columns: ColumnDef<Payment>[] = [
       )
     },
   },  
+  {
+    accessorKey: "AIOutBound",
+    header: ({ column }) => {
+      return (
+            <p>          
+              AI Outbound <br></br>(Coming Soon)
+            </p>
+      )
+    },
+  },  
+
 ]

@@ -80,11 +80,38 @@ export function DataTable<TData, TValue>({
       setLoadingStates((prev) => ({ ...prev, [rowId]: false }));
     }
   };
- 
-  
 
 
-  
+  const handleAIOutboundClick = async (rowId: any, rowDataAsString: string, linkedin_url: string) => {
+    // Indicate the start of loading for this specific row's button
+
+    setLoadingStates((prev) => ({ ...prev, [rowId]: true }));
+
+    const url = `${window.location.href}${api_route}${rowDataAsString}`;
+
+    try {
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+
+      }
+      const data = await response.text();
+
+      setButtonTexts((prevButtonTexts: any) => ({
+        ...prevButtonTexts,
+        [rowId]: data,
+      }));
+    } catch (error) {
+      console.error("Fetch error: ", error);
+
+    } finally {
+
+      // Indicate the end of loading regardless of success or failure
+      setLoadingStates((prev) => ({ ...prev, [rowId]: false }));
+    }
+  };
+
+
 
 
 
@@ -206,6 +233,38 @@ export function DataTable<TData, TValue>({
                           onClick={() => handleButtonClick(row.id, rowDataAsString)}
                         >
                           {buttonTexts[row.id] || "Reveal Email"}
+                        </Button>
+                      )}
+
+                      </TableCell>
+                    );
+                  } else if (cell.column.id === 'AIOutBound') {
+                    // Render the cell content as a hyperlink
+                    const rowData = row.original as { link?: string };
+                    const rowDataAsString = rowData.link ?? '';
+                    const isLoading = loadingStates[row.id];
+
+                  
+                    return (
+                      <TableCell key={cell.id}>
+                      {isLoading ? (
+                        // Render loading state
+                        <Button disabled>
+                          <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
+                          Please wait
+                        </Button>
+                      ) : (
+                        // Render button with API response or default text
+                        <Button
+                          variant="link"
+                          className="h-10 w-20"
+                          onClick={
+                            () => handleAIOutboundClick(row.id, rowDataAsString, "akshath-linkedin-url")//drafting the email here
+                            //calling the personalized outreach email api function here. 
+                            //Based on whether or not it was successful, render the button or ask the user to retry 
+                          }
+                        >
+                          {buttonTexts[row.id] || "AI Email"}
                         </Button>
                       )}
 
