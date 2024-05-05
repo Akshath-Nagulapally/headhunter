@@ -26,8 +26,9 @@ import { StockSkeleton } from "@/components/llm-stocks/stock-skeleton";
 import { EventsSkeleton } from "@/components/llm-stocks/events-skeleton";
 import { StocksSkeleton } from "@/components/llm-stocks/stocks-skeleton";
 
-import { messageRateLimit } from "@/lib/rate-limit";
+import { messageRateLimitPaying } from "@/lib/rate-limit";
 import {messageRateLimitNoLogin} from "@/lib/rate-limit";
+import {messageRateLimit_Login_NotPaying} from "@/lib/rate-limit";
 import { DataTable } from "./table/data-table";
 import DemoPage from './table/RenderedTable';
 import { Payment, columns } from "./table/columns";
@@ -35,6 +36,25 @@ import React, { useContext } from 'react';
 import {useCounterStore} from './store';
 import { getState } from './store';
 import { headers } from 'next/headers';
+
+
+//Todo: Basically create another url kinda thing called paying
+//handle it good for null state.
+//if set to true then whatever
+//If set to false then rate limit it after 3 more free queries.
+//Additionally add that thing for "oops seems like you subscribed for two free trials which is not allowed. Please contact: akshath@goark.ai while your account is on standby for suspicious activity"
+//Additionally, half the number of serper api calls you make, num results should be 50.
+
+
+
+
+
+
+
+
+
+
+
 
 
 const openai = new OpenAI({
@@ -73,9 +93,9 @@ function get_and_parse_url() {
 async function getUserDetails(id_user: string) {
 
   try {
-    const response = await fetch(`https://aiheadhunter.vercel.app/api/user_details?u_id=${id_user}`);
+    const response = await fetch(`http://localhost:3000/api/user_details?u_id=${id_user}`);
     const data = await response.text(); // This parses the JSON body of the response
-    //console.log('Success:', data);
+    console.log('Success:', data);
     return data;
   } catch (error) {
     console.log(error)
@@ -217,7 +237,7 @@ async function submitUserMessage(content: string) {
     if (!rl.success) {
       console.log("IP address:", ip);
       reply.done(
-        <BotMessage>Maximum number of anonymous requests has been reached. Sign up/in to continue!</BotMessage>,
+        <BotMessage>Maximum number of anonymous requests has been reached. Sign up/in to receive 3 more free requests</BotMessage>,
       );
       return {
         id: Date.now(),
@@ -228,14 +248,32 @@ async function submitUserMessage(content: string) {
 
   } else {
 
-    const rl = await messageRateLimit.limit(ip);
+    const user_payment_status = await getUserDetails(user_identity_token);
+
+    if(user_payment_status === "user is paying"){
+      const rl = await messageRateLimitPaying.limit(ip);
+
+      if (!rl.success) {
+        console.log(ip);
+        reply.done(
+          <BotMessage>Maximum requests reached. Please try again in 15 minutes</BotMessage>,
+        );
+        return {
+          id: Date.now(),
+          display: reply.value,
+        };
+      }
+    }else{
+
+    const rl = await messageRateLimit_Login_NotPaying.limit(ip);
 
     //do a database check to make sure that noone found the url and is scamming you by using a fake user identity.
+    //BETTER SOLUTION : Simply remove page.tsx that is not in the [userid] folder. This way you can only access it through a certain way and that way is route/ip protected
 
     if (!rl.success) {
       console.log(ip);
       reply.done(
-        <BotMessage>Maximum requests exhausted for the next 15 minutes</BotMessage>,
+        <BotMessage>Your free credits have exhausted, please subscribe to continue.</BotMessage>,
       );
       return {
         id: Date.now(),
@@ -243,6 +281,7 @@ async function submitUserMessage(content: string) {
       };
     }
   }
+}
   
   
 
