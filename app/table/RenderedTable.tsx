@@ -24,6 +24,7 @@ const DemoPage: React.FC<DemoPageProps> = ({ prospects_data }) => {
 
   return (
     <div className="container mx-auto py-10">
+      
       <DataTable columns={columns} data={prospects_data} />
     </div>
   );

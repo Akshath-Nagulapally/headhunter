@@ -145,8 +145,58 @@ export function DataTable<TData, TValue>({
 
   })
 
+  // Function to handle the button click, logging each item as JSON
+  const downloadCSV = async () => {
+    // Function to convert JSON to CSV
+    const jsonToCSV = (jsonData: any) => {
+      const rows = jsonData;
+      if (rows.length === 0) {
+        return null;
+      }
+      const csvRows = [];
+      const headers = Object.keys(rows[0]);
+      csvRows.push(headers.join(','));
+
+      for (const row of rows) {
+        const values = headers.map(header => {
+          const escaped = (''+row[header]).replace(/"/g, '\\"');
+          return `"${escaped}"`;
+        });
+        csvRows.push(values.join(','));
+      }
+      return csvRows.join('\n');
+    };
+
+    // Convert data to CSV
+    const csvData = jsonToCSV(data);
+    if (!csvData) return;
+
+    // Create a Blob with the CSV data
+    const blob = new Blob([csvData], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+
+    // Create a link and trigger download
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'data.csv';
+    link.click();
+
+    // Clean up by revoking the Blob URL
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div>
+
+
+<div className="my-4">
+        <Button
+          variant="outline"
+        onClick={downloadCSV}>
+          Download data as .csv / excel / sheet
+        </Button>
+
+      </div>
 
     <div className="flex items-center py-4">
    {/* showing the number of selected rows*/} 
