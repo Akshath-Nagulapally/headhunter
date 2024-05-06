@@ -21,7 +21,7 @@ export const messageRateLimitPaying = new Ratelimit({
 
 export const messageRateLimitNoLogin = new Ratelimit({
   redis,
-  limiter: Ratelimit.slidingWindow(5, "131400 m"),
+  limiter: Ratelimit.slidingWindow(2, "131400 m"),
   analytics: true,
   prefix: "ratelimit:geui:msg",
 });
