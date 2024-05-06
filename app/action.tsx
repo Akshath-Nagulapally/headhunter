@@ -93,7 +93,7 @@ function get_and_parse_url() {
 async function getUserDetails(id_user: string) {
 
   try {
-    const response = await fetch(`http://localhost:3000/api/user_details?u_id=${id_user}`);
+    const response = await fetch(`https://aiheadhunter.vercel.app/api/user_details?u_id=${id_user}`);
     const data = await response.text(); // This parses the JSON body of the response
     console.log('Success:', data);
     return data;

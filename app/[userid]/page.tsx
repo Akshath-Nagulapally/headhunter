@@ -46,7 +46,6 @@ export default function Page({ params }: { params: { userid: string } }) {
 
 
 
-  console.log("user identity from zustand:", useCounterStore.getState().count);
   //end of zustand state management.
 
   console.log("user identity", useridentity);
