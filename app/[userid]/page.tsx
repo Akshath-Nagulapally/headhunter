@@ -48,7 +48,7 @@ export default function Page({ params }: { params: { userid: string } }) {
 
   //end of zustand state management.
 
-  console.log("user identity", useridentity);
+  //console.log("user identity", useridentity);
 
 
 

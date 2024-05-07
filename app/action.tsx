@@ -2,6 +2,10 @@ import "server-only";
 import { createAI, createStreamableUI, getMutableAIState } from "ai/rsc";
 import OpenAI from "openai";
 
+
+//Supabase (no clue how to fix that)
+//user_id details api is being cached(not good).
+
 import {
   spinner,
   BotCard,
@@ -38,10 +42,6 @@ import { getState } from './store';
 import { headers } from 'next/headers';
 
 
-//Todo: Basically create another url kinda thing called paying
-//handle it good for null state.
-//if set to true then whatever
-//If set to false then rate limit it after 3 more free queries.
 //Additionally add that thing for "oops seems like you subscribed for two free trials which is not allowed. Please contact: akshath@goark.ai while your account is on standby for suspicious activity"
 //Additionally, half the number of serper api calls you make, num results should be 50.
 
