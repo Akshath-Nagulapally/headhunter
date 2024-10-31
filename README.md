@@ -24,5 +24,5 @@ AI Headhunter is an intelligent headhunting tool that leverages the OpenAI API t
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/your-username/ai-headhunter.git
-   cd ai-headhunter
+   git clone https://github.com/your-username/headhunter.git
+   cd headhunter
